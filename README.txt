@@ -1,0 +1,6 @@
+- requests_app.py returns the first available appointment dates at desired Virginia DMV locations
+- install requirements from requirements.txt
+- comment out locations not desired in calendarIDList list
+- on execution, locations searched for and status code will be printed (200 == SUCCESS)
+- locations and available appointment dates will be printed in table format
+- run using 'python3 requests_app.py'
