@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import time
 from tabulate import tabulate
 
+# [location - address, calendarID for requests]
 calendarIDList = [['Abingdon - 25552 Lee Highway', '3871993'],
 					['Alexandria - 2681 Mill Road', '4024318'],
 					['Altavista - 1301 H Main Street', '4190296'],
@@ -77,6 +78,7 @@ calendarIDList = [['Abingdon - 25552 Lee Highway', '3871993'],
 					['Woodstock - 714-A North Main Street', '4023845'],
 					['Wytheville - 800 East Main Street, Suite 100', '4024345']]
 
+# request for location's calendar, response returned as HTML
 def postRequest(calendarID):
 	payload = {'type': '14002959', 'calendar': calendarID, 'skip': 'true', 'options[qty]': '1', 'options[numDays]': '5'}
 	r = requests.post('https://vadmvappointments.as.me/schedule.php?action=showCalendar&fulldate=1&owner=19444409&template=monthly', data=payload)
@@ -85,13 +87,19 @@ def postRequest(calendarID):
 def main():
 	locationDates = []
 	totalTime = 0
+
+	# request for each location in calendarIDList
 	for i in range(len(calendarIDList)):
 		locationDates.append([calendarIDList[i][0]])
 		start = time.time()
 		req = postRequest(calendarIDList[i][1])
 		end = time.time()
 		totalTime += end - start
+
+		# location requested from - request status code
 		print(calendarIDList[i][0].split('-')[0] + " - " + str(req.status_code))
+
+		# parse HTML response for available dates
 		soup = BeautifulSoup(req.content, 'html.parser')
 		openMonth = soup.find('option', {'selected': 'selected'}).text.split()[0]
 		openYear = soup.find('option', {'selected': 'selected'}).text.split()[1]
@@ -103,6 +111,7 @@ def main():
 				dateStr += openMonth + " " + day.text + " " + openYear + "\n"
 			locationDates[i].append(dateStr.rstrip())
 
+	# print output in table format
 	print("\n")
 	print(tabulate(locationDates, headers=['Location', 'Date(s)'], tablefmt='presto'))
 	print("Average time per request: " + str(totalTime / len(calendarIDList)) + " seconds\n\n")
